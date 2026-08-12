@@ -36,6 +36,10 @@ contracts/broadcast/*/11155111/
 .nextdev.log
 *.log
 
+# Generated wallet material — never commit
+.attester-key.txt
+.attester-wallet.json
+
 # OS
 .DS_Store
 Thumbs.db

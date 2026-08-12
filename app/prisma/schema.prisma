@@ -9,12 +9,13 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
-// Note: SQLite has no native enum support in Prisma, so status/kind fields
-// below are plain strings constrained at the application layer (see
-// lib/types.ts for the string-literal unions they must match).
+// Note: status/kind fields below are plain strings constrained at the
+// application layer (see lib/types.ts for the string-literal unions they
+// must match) rather than native Postgres enums, so adding a new status
+// value doesn't require a migration.
 
 model Asset {
   id            Int      @id @default(autoincrement())

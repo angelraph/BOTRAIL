@@ -1,17 +1,20 @@
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
+import { put } from "@vercel/blob";
 
-const EVIDENCE_ROOT = path.join(process.cwd(), "data", "evidence");
-
-/// Saves a raw evidence file to local disk under data/evidence/{assetId}/.
-/// This is the demo-scale stand-in for the "evidence storage" layer — an
-/// IPFS/S3 swap is a later concern, not a day-1 dependency (see plan).
-/// Returns the path stored in the DB (relative to the app root).
+/// Saves a raw evidence file to Vercel Blob (private store) under
+/// evidence/{assetId}/. Vercel's serverless functions have no persistent
+/// local filesystem — every request can land on a different instance — so
+/// this can't be a local fs write the way it might be for a
+/// single-process local server. Returns the blob's pathname, which is
+/// what gets stored in the DB and later resolved back to bytes via
+/// `@vercel/blob`'s `get()` in the evidence-serving route.
 export async function saveEvidenceFile(assetId: number, fileName: string, buffer: Buffer): Promise<string> {
-  const dir = path.join(EVIDENCE_ROOT, String(assetId));
-  await mkdir(dir, { recursive: true });
-  const safeName = `${Date.now()}-${fileName.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-  const fullPath = path.join(dir, safeName);
-  await writeFile(fullPath, buffer);
-  return path.relative(process.cwd(), fullPath);
+  const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const pathname = `evidence/${assetId}/${Date.now()}-${safeName}`;
+
+  const blob = await put(pathname, buffer, {
+    access: "private",
+    addRandomSuffix: false,
+  });
+
+  return blob.pathname;
 }

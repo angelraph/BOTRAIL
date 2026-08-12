@@ -102,7 +102,16 @@ export default async function AssetPage({ params }: { params: Promise<{ id: stri
                       {e.createdAt.toISOString().slice(0, 16).replace("T", " ")}
                     </td>
                     <td className="py-2 pr-4">{e.kind}</td>
-                    <td className="py-2 pr-4">{e.fileName}</td>
+                    <td className="py-2 pr-4">
+                      <a
+                        href={`/api/evidence/${e.filePath}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 dark:text-blue-400 hover:underline"
+                      >
+                        {e.fileName}
+                      </a>
+                    </td>
                     <td className="py-2 pr-4">
                       {e.newStatus ? <StatusBadge status={e.newStatus} /> : "—"}
                     </td>
