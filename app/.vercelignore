@@ -1,0 +1,7 @@
+.env
+.env.local
+.env.production.local
+.env.development.local
+dev.db
+dev.db-journal
+data/evidence
