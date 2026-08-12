@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// Note: SQLite has no native enum support in Prisma, so status/kind fields
+// below are plain strings constrained at the application layer (see
+// lib/types.ts for the string-literal unions they must match).
+
+model Asset {
+  id            Int      @id @default(autoincrement())
+  chainAssetId  Int?     @unique // set once registerAsset() confirms on-chain
+  name          String
+  assetType     String   @default("Construction Equipment")
+  ownerAddress  String
+  metadataURI   String   @default("")
+  status        String   @default("PENDING") // PENDING -> ACTIVE | RESTRICTED
+  verification  Int? // 0-100, latest AI verification score
+  riskScore     Int? // 0-100, lower is better
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  evidence    Evidence[]
+  agreements  Agreement[]
+}
+
+model Evidence {
+  id             Int      @id @default(autoincrement())
+  assetId        Int
+  asset          Asset    @relation(fields: [assetId], references: [id])
+  agreementId    Int?
+  agreement      Agreement? @relation(fields: [agreementId], references: [id])
+  kind           String // OWNERSHIP | INSURANCE | INSPECTION | PHOTO | DELIVERY | OTHER
+  fileName       String
+  filePath       String
+  sha256Hash     String
+  aiVerdictJson  String // raw structured verdict returned by the AI layer
+  conditionsMet  Boolean?
+  newStatus      String? // asset status this evidence resulted in, if any
+  txHash         String? // recordEvidence tx hash, once anchored on-chain
+  createdAt      DateTime @default(now())
+}
+
+model Agreement {
+  id               Int      @id @default(autoincrement())
+  assetId          Int
+  asset            Asset    @relation(fields: [assetId], references: [id])
+  chainAgreementId Int?     @unique
+  payerAddress     String
+  payeeAddress     String
+  amountBot        String // decimal amount as string, e.g. "8000"
+  conditions       String // human-readable condition list
+  conditionsHash   String
+  status           String   @default("PENDING") // PENDING -> FUNDED -> RELEASED | REFUNDED
+  txHashCreate     String?
+  txHashRelease    String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  evidence Evidence[]
+}
