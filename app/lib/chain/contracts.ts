@@ -1,5 +1,5 @@
 import { Contract, parseEther, formatEther, type ContractTransactionReceipt, type Log } from "ethers";
-import { attester } from "./client";
+import { getAttester } from "./client";
 import assetRegistryAbi from "./AssetRegistry.abi.json";
 import settlementEscrowAbi from "./SettlementEscrow.abi.json";
 import { ON_CHAIN_ASSET_STATUS } from "../types";
@@ -21,7 +21,7 @@ function requireAddress(envVar: string): string {
 let assetRegistrySingleton: Contract | undefined;
 function getAssetRegistry(): Contract {
   if (!assetRegistrySingleton) {
-    assetRegistrySingleton = new Contract(requireAddress("ASSET_REGISTRY_ADDRESS"), assetRegistryAbi, attester);
+    assetRegistrySingleton = new Contract(requireAddress("ASSET_REGISTRY_ADDRESS"), assetRegistryAbi, getAttester());
   }
   return assetRegistrySingleton;
 }
@@ -32,7 +32,7 @@ function getSettlementEscrow(): Contract {
     settlementEscrowSingleton = new Contract(
       requireAddress("SETTLEMENT_ESCROW_ADDRESS"),
       settlementEscrowAbi,
-      attester
+      getAttester()
     );
   }
   return settlementEscrowSingleton;

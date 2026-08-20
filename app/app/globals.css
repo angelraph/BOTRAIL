@@ -1,26 +1,113 @@
 @import "tailwindcss";
 
+/*
+  BOTRAIL is deliberately dark-only, matching BOT Chain's own technical
+  aesthetic: near-black canvas, thin borders, restrained teal-green accent
+  reserved for verified/passed/settled states. This is a single committed
+  visual world (not a light/dark toggle), so every color is painted
+  directly rather than gated behind a media query.
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #0a0a0b;
+  --surface: #111113;
+  --surface-elevated: #151518;
+  --border: #303034;
+  --border-hover: #3a3a3d;
+
+  --text: #f2f2f4;
+  --text-subtle: #d8d8dc;
+  --text-secondary: #9a9aa0;
+  --text-muted: #8b8b91;
+
+  --accent: #00bfa5;
+  --accent-hover: #1fd6bb;
+  --accent-bg: rgba(0, 191, 165, 0.1);
+  --ink-on-accent: #04211c;
+
+  --verified: #00c2a8;
+  --verified-bg: rgba(0, 194, 168, 0.12);
+
+  --restricted: #f2555f;
+  --restricted-bg: rgba(242, 85, 95, 0.12);
+
+  --pending: #d6a44e;
+  --pending-bg: rgba(214, 164, 78, 0.12);
+
+  --link: #00bfa5;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
+
+  --color-text: var(--text);
+  --color-text-subtle: var(--text-subtle);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-bg: var(--accent-bg);
+  --color-ink-on-accent: var(--ink-on-accent);
+
+  --color-verified: var(--verified);
+  --color-verified-bg: var(--verified-bg);
+  --color-restricted: var(--restricted);
+  --color-restricted-bg: var(--restricted-bg);
+  --color-pending: var(--pending);
+  --color-pending-bg: var(--pending-bg);
+  --color-link: var(--link);
+
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "IBM Plex Mono", monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html {
+  color-scheme: dark;
+}
+
+/* Base-layer element defaults, so Tailwind utility classes (e.g. a link
+   styled with text-ink-on-accent inside a button) can still override
+   them. Un-layered CSS always beats layered CSS regardless of
+   specificity, so these must live inside Tailwind's own `base` layer
+   rather than as plain rules — otherwise a plain `a { color }` rule
+   would beat any `.text-*` utility applied to a link, no matter how
+   specific the utility's selector is. */
+@layer base {
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-inter), system-ui, sans-serif;
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--ink-on-accent);
+  }
+
+  a {
+    color: var(--link);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Numbers that appear in columns (verification %, amounts, tx hashes)
+   should line up — tabular figures read as data, not prose. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

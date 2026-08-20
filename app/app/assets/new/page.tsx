@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+const inputClass =
+  "rounded-lg border border-border bg-surface px-3.5 py-2.5 text-sm text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent transition-colors";
+
 export default function NewAssetPage() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -32,50 +35,49 @@ export default function NewAssetPage() {
 
   return (
     <div className="max-w-lg">
-      <h1 className="text-2xl font-semibold tracking-tight mb-1">Register Asset</h1>
-      <p className="text-sm text-zinc-500 mb-6">
-        Step 1 of BOTRAIL&rsquo;s asset passport: name the asset. You&rsquo;ll upload ownership,
-        insurance, inspection, and photo evidence on the next screen to verify and register it
-        on-chain.
+      <span className="inline-block rounded-full bg-accent-bg text-accent text-xs font-semibold px-2.5 py-1">
+        Step 1 of 2
+      </span>
+      <h1 className="text-3xl font-bold tracking-tight mt-3 mb-2">Register an asset</h1>
+      <p className="text-sm text-text-secondary mb-8 leading-relaxed">
+        Name the asset now. You&rsquo;ll upload ownership, insurance, inspection, and photo
+        evidence on the next screen to verify it and register it on-chain.
       </p>
 
-      <form onSubmit={onSubmit} className="flex flex-col gap-4">
-        <label className="flex flex-col gap-1 text-sm">
+      <form onSubmit={onSubmit} className="flex flex-col gap-5">
+        <label className="flex flex-col gap-1.5 text-sm">
           <span className="font-medium">Asset name</span>
           <input
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Excavator #2841"
-            className="rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2"
+            className={inputClass}
           />
         </label>
 
-        <label className="flex flex-col gap-1 text-sm">
+        <label className="flex flex-col gap-1.5 text-sm">
           <span className="font-medium">Asset type</span>
-          <input
-            value={assetType}
-            onChange={(e) => setAssetType(e.target.value)}
-            className="rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2"
-          />
+          <input value={assetType} onChange={(e) => setAssetType(e.target.value)} className={inputClass} />
         </label>
 
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="font-medium">Owner address (optional)</span>
+        <label className="flex flex-col gap-1.5 text-sm">
+          <span className="font-medium">Owner address</span>
+          <span className="text-xs text-text-muted -mt-1">Optional. Defaults to a demo address.</span>
           <input
             value={ownerAddress}
             onChange={(e) => setOwnerAddress(e.target.value)}
-            placeholder="0x… (defaults to a demo address)"
-            className="rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 font-mono text-xs"
+            placeholder="0x…"
+            className={`${inputClass} font-mono text-xs`}
           />
         </label>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-restricted">{error}</p>}
 
         <button
           type="submit"
           disabled={submitting}
-          className="mt-2 rounded-md bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 px-4 py-2 text-sm font-medium disabled:opacity-50"
+          className="mt-2 self-start rounded-full bg-accent hover:bg-accent-hover text-ink-on-accent px-5 py-2.5 text-sm font-semibold disabled:opacity-50 transition-colors"
         >
           {submitting ? "Creating…" : "Create asset"}
         </button>

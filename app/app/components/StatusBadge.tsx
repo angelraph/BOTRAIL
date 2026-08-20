@@ -1,16 +1,30 @@
-const COLORS: Record<string, string> = {
-  ACTIVE: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300",
-  RESTRICTED: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
-  PENDING: "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
-  FUNDED: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300",
-  RELEASED: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300",
-  REFUNDED: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300",
+interface StatusStyle {
+  bg: string;
+  fg: string;
+  dot: string;
+}
+
+// Status is encoded in both color and a leading dot, not color alone —
+// RESTRICTED needs to read at a glance even for someone unable to
+// distinguish the accent green from the pending gold.
+const STYLES: Record<string, StatusStyle> = {
+  ACTIVE: { bg: "bg-verified-bg", fg: "text-verified", dot: "bg-verified" },
+  RELEASED: { bg: "bg-verified-bg", fg: "text-verified", dot: "bg-verified" },
+  RESTRICTED: { bg: "bg-restricted-bg", fg: "text-restricted", dot: "bg-restricted" },
+  PENDING: { bg: "bg-pending-bg", fg: "text-pending", dot: "bg-pending" },
+  FUNDED: { bg: "bg-pending-bg", fg: "text-pending", dot: "bg-pending" },
+  REFUNDED: { bg: "bg-surface-elevated", fg: "text-text-muted", dot: "bg-text-muted" },
 };
 
+const FALLBACK: StatusStyle = { bg: "bg-surface-elevated", fg: "text-text-muted", dot: "bg-text-muted" };
+
 export function StatusBadge({ status }: { status: string }) {
-  const color = COLORS[status] ?? "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300";
+  const style = STYLES[status] ?? FALLBACK;
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${color}`}>
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${style.bg} ${style.fg}`}
+    >
+      <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} aria-hidden="true" />
       {status}
     </span>
   );

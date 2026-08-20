@@ -11,6 +11,9 @@ interface AssetSummary {
   ownerAddress: string;
 }
 
+const inputClass =
+  "rounded-lg border border-border bg-surface px-3.5 py-2.5 text-sm text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent transition-colors";
+
 export function NewAgreementForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -60,22 +63,20 @@ export function NewAgreementForm() {
 
   return (
     <div className="max-w-lg">
-      <h1 className="text-2xl font-semibold tracking-tight mb-1">New Rental Agreement</h1>
-      <p className="text-sm text-zinc-500 mb-6">
-        Funds are deposited into escrow now. They release only when delivery + inspection
-        evidence satisfies both conditions AND the asset is still ACTIVE at the moment of
+      <span className="inline-block rounded-full bg-accent-bg text-accent text-xs font-semibold px-2.5 py-1">
+        Escrow
+      </span>
+      <h1 className="text-3xl font-bold tracking-tight mt-3 mb-2">New rental agreement</h1>
+      <p className="text-sm text-text-secondary mb-8 leading-relaxed">
+        Funds are deposited into escrow now. They release only when delivery and inspection
+        evidence satisfies both conditions and the asset is still active at the moment of
         release.
       </p>
 
-      <form onSubmit={onSubmit} className="flex flex-col gap-4">
-        <label className="flex flex-col gap-1 text-sm">
+      <form onSubmit={onSubmit} className="flex flex-col gap-5">
+        <label className="flex flex-col gap-1.5 text-sm">
           <span className="font-medium">Asset</span>
-          <select
-            required
-            value={assetId}
-            onChange={(e) => setAssetId(e.target.value)}
-            className="rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2"
-          >
+          <select required value={assetId} onChange={(e) => setAssetId(e.target.value)} className={inputClass}>
             <option value="" disabled>
               Select a verified asset…
             </option>
@@ -87,48 +88,44 @@ export function NewAgreementForm() {
           </select>
         </label>
 
-        <label className="flex flex-col gap-1 text-sm">
+        <label className="flex flex-col gap-1.5 text-sm">
           <span className="font-medium">Amount (BOT)</span>
-          <input
-            required
-            value={amountBot}
-            onChange={(e) => setAmountBot(e.target.value)}
-            className="rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2"
-          />
+          <input required value={amountBot} onChange={(e) => setAmountBot(e.target.value)} className={`${inputClass} tabular`} />
         </label>
 
-        <div className="rounded-md bg-zinc-100 dark:bg-zinc-800 px-3 py-2 text-xs text-zinc-600 dark:text-zinc-400">
-          Conditions: <strong>delivery_confirmed</strong> + <strong>inspection_passed</strong>{" "}
-          (fixed for this demo — the escrow contract only releases if both pass and the asset is
-          ACTIVE).
+        <div className="rounded-lg bg-pending-bg px-3.5 py-3 text-xs text-text leading-relaxed">
+          Conditions: <strong>delivery_confirmed</strong> + <strong>inspection_passed</strong>, fixed for this
+          demo. The escrow contract only releases funds if both pass and the asset is active.
         </div>
 
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="font-medium">Payer address (optional)</span>
+        <label className="flex flex-col gap-1.5 text-sm">
+          <span className="font-medium">Payer address</span>
+          <span className="text-xs text-text-muted -mt-1">Optional. Defaults to a demo renter address.</span>
           <input
             value={payerAddress}
             onChange={(e) => setPayerAddress(e.target.value)}
-            placeholder="0x… (defaults to a demo renter address)"
-            className="rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 font-mono text-xs"
+            placeholder="0x…"
+            className={`${inputClass} font-mono text-xs`}
           />
         </label>
 
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="font-medium">Payee address (optional)</span>
+        <label className="flex flex-col gap-1.5 text-sm">
+          <span className="font-medium">Payee address</span>
+          <span className="text-xs text-text-muted -mt-1">Optional. Defaults to the asset owner.</span>
           <input
             value={payeeAddress}
             onChange={(e) => setPayeeAddress(e.target.value)}
-            placeholder="0x… (defaults to the asset owner)"
-            className="rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 font-mono text-xs"
+            placeholder="0x…"
+            className={`${inputClass} font-mono text-xs`}
           />
         </label>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-restricted">{error}</p>}
 
         <button
           type="submit"
           disabled={submitting || !assetId}
-          className="mt-2 self-start rounded-md bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 px-4 py-2 text-sm font-medium disabled:opacity-50"
+          className="mt-2 self-start rounded-full bg-accent hover:bg-accent-hover text-ink-on-accent px-5 py-2.5 text-sm font-semibold disabled:opacity-50 transition-colors"
         >
           {submitting ? "Funding escrow…" : "Create & fund agreement"}
         </button>

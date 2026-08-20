@@ -12,6 +12,12 @@ import { JsonRpcProvider, NonceManager, Wallet } from "ethers";
 /// release), and querying the node for "pending" nonce fresh on every send
 /// races with same-block instant-mine chains like Anvil. NonceManager
 /// tracks the nonce in-process after the first fetch instead.
+///
+/// Both are constructed lazily (not at module load) so a missing
+/// RPC_URL/ATTESTER_PRIVATE_KEY only fails the specific call that needs
+/// them, rather than crashing `next build`'s static analysis of every
+/// route that transitively imports this module — including routes that
+/// never actually touch the chain.
 
 declare global {
   // eslint-disable-next-line no-var
@@ -25,7 +31,12 @@ function buildProvider() {
   return new JsonRpcProvider(rpcUrl);
 }
 
-export const provider = globalThis.__botrailProvider ?? buildProvider();
+export function getProvider(): JsonRpcProvider {
+  if (!globalThis.__botrailProvider) {
+    globalThis.__botrailProvider = buildProvider();
+  }
+  return globalThis.__botrailProvider;
+}
 
 function buildAttester() {
   const key = process.env.ATTESTER_PRIVATE_KEY;
@@ -35,12 +46,12 @@ function buildAttester() {
         "(for local dev, use one of Anvil's printed default account keys)."
     );
   }
-  return new NonceManager(new Wallet(key, provider));
+  return new NonceManager(new Wallet(key, getProvider()));
 }
 
-export const attester = globalThis.__botrailAttester ?? buildAttester();
-
-if (process.env.NODE_ENV !== "production") {
-  globalThis.__botrailProvider = provider;
-  globalThis.__botrailAttester = attester;
+export function getAttester(): NonceManager {
+  if (!globalThis.__botrailAttester) {
+    globalThis.__botrailAttester = buildAttester();
+  }
+  return globalThis.__botrailAttester;
 }

@@ -21,33 +21,33 @@ export default async function AgreementPage({ params }: { params: Promise<{ id: 
   const conditions: { name: string; description: string }[] = JSON.parse(agreement.conditions);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       <div>
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight">
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-3xl font-bold tracking-tight tabular">
             Agreement #{agreement.chainAgreementId ?? agreement.id}
           </h1>
           <StatusBadge status={agreement.status} />
         </div>
-        <p className="text-sm text-zinc-500">
-          <Link href={`/assets/${agreement.asset.id}`} className="hover:underline">
+        <p className="text-sm text-text-secondary mt-1">
+          <Link href={`/assets/${agreement.asset.id}`} className="text-accent hover:text-accent-hover">
             {agreement.asset.name}
           </Link>{" "}
-          · {agreement.amountBot} BOT
+          · <span className="tabular">{agreement.amountBot} BOT</span>
         </p>
       </div>
 
-      <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 text-sm flex flex-col gap-3">
+      <div className="rounded-2xl border border-border bg-surface p-6 text-sm flex flex-col gap-5">
         <Row label="Payer" value={agreement.payerAddress} mono />
         <Row label="Payee" value={agreement.payeeAddress} mono />
         <Row
           label="Conditions"
           value={
-            <ul className="list-disc list-inside">
+            <ul className="list-disc list-inside space-y-0.5">
               {conditions.map((c) => (
                 <li key={c.name}>
                   <span className="font-medium">{c.name}</span>
-                  <span className="text-zinc-500"> — {c.description}</span>
+                  <span className="text-text-secondary">: {c.description}</span>
                 </li>
               ))}
             </ul>
@@ -60,23 +60,23 @@ export default async function AgreementPage({ params }: { params: Promise<{ id: 
       {agreement.status === "FUNDED" ? (
         <AgreementEvidenceForm agreementId={agreement.id} />
       ) : (
-        <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 text-sm text-zinc-500">
-          This agreement is {agreement.status.toLowerCase()} — no further release attempts possible.
+        <div className="rounded-2xl border border-border bg-surface p-6 text-sm text-text-secondary">
+          This agreement is {agreement.status.toLowerCase()}. No further release attempts possible.
         </div>
       )}
 
       {agreement.evidence.length > 0 && (
-        <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5">
-          <h2 className="font-medium mb-3">Evidence submitted to this agreement</h2>
+        <div className="rounded-2xl border border-border bg-surface p-6">
+          <h2 className="text-lg font-semibold mb-4">Evidence submitted</h2>
           <ul className="flex flex-col gap-2 text-sm">
             {agreement.evidence.map((e) => (
-              <li key={e.id} className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800/60 pb-2">
+              <li key={e.id} className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2">
                 <span>
                   {e.kind} · {e.fileName}
                 </span>
                 <span className="flex items-center gap-3">
                   {e.conditionsMet != null && (
-                    <span className={e.conditionsMet ? "text-emerald-600" : "text-red-600"}>
+                    <span className={`text-xs font-semibold ${e.conditionsMet ? "text-verified" : "text-restricted"}`}>
                       {e.conditionsMet ? "conditions met" : "conditions not met"}
                     </span>
                   )}
@@ -94,7 +94,7 @@ export default async function AgreementPage({ params }: { params: Promise<{ id: 
 function Row({ label, value, mono }: { label: string; value: React.ReactNode; mono?: boolean }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-xs text-zinc-500">{label}</span>
+      <span className="text-[11px] uppercase tracking-wide text-text-muted">{label}</span>
       <span className={mono ? "font-mono text-xs break-all" : ""}>{value}</span>
     </div>
   );
