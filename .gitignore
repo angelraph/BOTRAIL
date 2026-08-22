@@ -3,7 +3,6 @@ node_modules/
 
 # Next.js
 app/.next/
-app/generated/
 app/next-env.d.ts
 
 # Env files (never commit secrets)
