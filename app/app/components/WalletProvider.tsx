@@ -8,6 +8,7 @@ interface WalletState {
   connecting: boolean;
   error: string | null;
   connect: () => Promise<string | null>;
+  disconnect: () => void;
   sign: (message: string) => Promise<string>;
 }
 
@@ -41,8 +42,15 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     [address]
   );
 
+  const disconnect = useCallback(() => {
+    setAddress(null);
+    setError(null);
+  }, []);
+
   return (
-    <WalletContext.Provider value={{ address, connecting, error, connect, sign }}>{children}</WalletContext.Provider>
+    <WalletContext.Provider value={{ address, connecting, error, connect, disconnect, sign }}>
+      {children}
+    </WalletContext.Provider>
   );
 }
 
