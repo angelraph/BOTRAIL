@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useWallet } from "./WalletProvider";
+import { WalletConnectButton } from "./WalletConnectButton";
 
 interface AssetSummary {
   id: number;
@@ -18,11 +20,11 @@ export function NewAgreementForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const preselectedAssetId = searchParams.get("assetId");
+  const { address, sign } = useWallet();
 
   const [assets, setAssets] = useState<AssetSummary[]>([]);
   const [assetId, setAssetId] = useState(preselectedAssetId ?? "");
   const [amountBot, setAmountBot] = useState("8000");
-  const [payerAddress, setPayerAddress] = useState("");
   const [payeeAddress, setPayeeAddress] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,17 +37,25 @@ export function NewAgreementForm() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!address) {
+      setError("connect a wallet first — you'll sign to confirm you're funding this agreement as payer");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
+      const message = `BOTRAIL: fund rental agreement for asset #${assetId}, amount ${amountBot} BOT, as payer ${address}`;
+      const signature = await sign(message);
       const res = await fetch("/api/agreements", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           assetId: Number(assetId),
           amountBot,
-          payerAddress: payerAddress || undefined,
+          payerAddress: address,
           payeeAddress: payeeAddress || undefined,
+          message,
+          signature,
           conditions: [
             { name: "delivery_confirmed", description: "Delivery photo shows the correct asset delivered to site." },
             { name: "inspection_passed", description: "Inspection report shows the asset passed inspection." },
@@ -98,16 +108,21 @@ export function NewAgreementForm() {
           demo. The escrow contract only releases funds if both pass and the asset is active.
         </div>
 
-        <label className="flex flex-col gap-1.5 text-sm">
-          <span className="font-medium">Payer address</span>
-          <span className="text-xs text-text-muted -mt-1">Optional. Defaults to a demo renter address.</span>
-          <input
-            value={payerAddress}
-            onChange={(e) => setPayerAddress(e.target.value)}
-            placeholder="0x…"
-            className={`${inputClass} font-mono text-xs`}
-          />
-        </label>
+        <div className="flex flex-col gap-1.5 text-sm">
+          <span className="font-medium">Payer wallet</span>
+          {address ? (
+            <span className="text-xs text-text-muted font-mono -mt-1">
+              Funding as <span className="text-text">{address}</span> — you&rsquo;ll sign a message to confirm.
+            </span>
+          ) : (
+            <span className="text-xs text-text-muted -mt-1">
+              Connect a wallet — it becomes the agreement&rsquo;s payer and signs to confirm funding.
+            </span>
+          )}
+          <div>
+            <WalletConnectButton />
+          </div>
+        </div>
 
         <label className="flex flex-col gap-1.5 text-sm">
           <span className="font-medium">Payee address</span>
@@ -124,10 +139,10 @@ export function NewAgreementForm() {
 
         <button
           type="submit"
-          disabled={submitting || !assetId}
+          disabled={submitting || !assetId || !address}
           className="mt-2 self-start rounded-full bg-accent hover:bg-accent-hover text-ink-on-accent px-5 py-2.5 text-sm font-semibold disabled:opacity-50 transition-colors"
         >
-          {submitting ? "Funding escrow…" : "Create & fund agreement"}
+          {submitting ? "Funding escrow…" : !address ? "Connect wallet to continue" : "Create & fund agreement"}
         </button>
       </form>
     </div>
